@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shashank Agrawal - Full Stack Developer</title>
+    <link rel="icon" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg'   viewBox='0 0 100 100'%3e%3crect width='100' height='100' rx='20' fill='%230A0A0A'/%3e%3ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='50' font-family='Sora, sans-serif' font-weight='bold' fill='%2310B981'%3esa%3c/text%3e%3c/svg%3e">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0A0A0A;
+            --primary-text: #E2E8F0;
+            --secondary-text: #94A3B8;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-color: #10B981; /* Emerald 500 */
+            --accent-glow: #34D399; /* Emerald 400 */
+            --card-bg: rgba(17, 17, 17, 0.5);
+        }
+        body {
+            font-family: 'Sora', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+        }
+        #hero-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            opacity: 0.4;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        /* --- Improved Glass Card with Tilt Effect & Animated Border --- */
+        .card-container {
+            perspective: 1000px;
+        }
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            left: -50%;
+            top: -50%;
+            width: 200%;
+            height: 200%;
+            background-repeat: no-repeat;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            background-image: conic-gradient(from 180deg at 50% 50%, var(--accent-glow) 0deg, transparent 50%, transparent 100%);
+            animation: rotate 4s linear infinite paused;
+        }
+        .glass-card:hover::before {
+            opacity: 1;
+            animation-play-state: running;
+        }
+        .glass-card-content {
+            position: relative;
+            z-index: 1;
+            background: #111111;
+            margin: 1px;
+            border-radius: 0.5rem;
+            height: calc(100% - 2px);
+            width: calc(100% - 2px);
+        }
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+        .card-container:hover .glass-card {
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+        }
+        .accent-text { color: var(--accent-color); }
+        
+        .nav-link { position: relative; transition: color 0.3s; }
+        .nav-link::after {
+            content: ''; position: absolute; width: 0; height: 2px;
+            bottom: -5px; left: 50%; transform: translateX(-50%);
+            background-color: var(--accent-color); transition: width 0.3s;
+        }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+        .fade-in-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .fade-in-up.visible { opacity: 1; transform: translateY(0); }
+        .btn { transition: all 0.3s ease; }
+        .btn-primary {
+            background-image: linear-gradient(to right, var(--accent-glow), var(--accent-color));
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+        .btn-secondary { border-color: var(--border-color); }
+        .btn-secondary:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: var(--bg-color);
+        }
+        .skill-card {
+            background-color: #181818; border-radius: 0.5rem;
+            padding: 1rem; transition: all 0.3s ease; text-align: center;
+        }
+        .skill-card:hover { transform: scale(1.1); background-color: var(--accent-color); }
+        .skill-card img { filter: grayscale(100%) brightness(1.5); transition: filter 0.3s ease; margin: 0 auto 0.5rem; }
+        .skill-card:hover img { filter: grayscale(0%) brightness(1); }
+        .skill-card span { color: var(--secondary-text); transition: color 0.3s ease; font-size: 0.875rem; }
+        .skill-card:hover span { color: var(--bg-color); font-weight: 600; }
+        
+        /* --- Improved Animated Timeline --- */
+        .timeline-container { position: relative; }
+        .timeline-bar {
+            position: absolute; left: -25px; top: 10px; bottom: 10px;
+            width: 4px; background-color: #374151; /* gray-700 */
+            border-radius: 2px;
+        }
+        .timeline-bar-progress {
+            width: 100%; height: 100%;
+            background-color: var(--accent-color);
+        }
+        .timeline-item { position: relative; padding-left: 1rem; padding-bottom: 3rem; }
+        .timeline-item:last-child { padding-bottom: 0; }
+        .timeline-dot {
+            position: absolute; left: -35px; top: 4px;
+            width: 20px; height: 20px; border-radius: 50%;
+            background-color: var(--accent-color); z-index: 10;
+            animation: pulse 1.8s infinite;
+        }
+        .timeline-connector {
+            position: absolute;
+            top: 13px;
+            left: -15px;
+            width: 25px;
+            height: 2px;
+            background-color: var(--accent-color);
+            z-index: 5;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(52, 211, 153, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+        }
+    </style>
+</head>
+<body class="antialiased" style="overflow-x: hidden; scrollbar-width: none; -ms-overflow-style: none;">
+    <canvas id="hero-canvas"></canvas>
+    <!-- Header and Navigation -->
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-white">s<span class="accent-text">a</span>.</a>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#about" class="nav-link text-gray-300 hover:text-white">About</a>
+                <a href="#education" class="nav-link text-gray-300 hover:text-white">Education</a>
+                <a href="#experience" class="nav-link text-gray-300 hover:text-white">Experience</a>
+                <a href="#projects" class="nav-link text-gray-300 hover:text-white">Projects</a>
+                <a href="#skills" class="nav-link text-gray-300 hover:text-white">Skills</a>
+                <a href="#contact" class="nav-link text-gray-300 hover:text-white">Contact</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-white" aria-label="Open menu">
+                <i data-feather="menu"></i>
+            </button>
+        </nav>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden" style="background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px);">
+            <a href="#about" class="mobile-nav-link block py-3 px-6 text-sm text-gray-300 hover:bg-gray-900">About</a>
+            <a href="#education" class="mobile-nav-link block py-3 px-6 text-sm text-gray-300 hover:bg-gray-900">Education</a>
+            <a href="#experience" class="mobile-nav-link block py-3 px-6 text-sm text-gray-300 hover:bg-gray-900">Experience</a>
+            <a href="#projects" class="mobile-nav-link block py-3 px-6 text-sm text-gray-300 hover:bg-gray-900">Projects</a>
+            <a href="#skills" class="mobile-nav-link block py-3 px-6 text-sm text-gray-300 hover:bg-gray-900">Skills</a>
+            <a href="#contact" class="mobile-nav-link block py-3 px-6 text-sm text-gray-300 hover:bg-gray-900">Contact</a>
+        </div>
+    </header>
+    <main class="container mx-auto px-6">
+        <!-- Hero Section -->
+        <section id="home" class="min-h-screen flex flex-col justify-center items-start hero-content">
+            <div class="fade-in-up">
+                <h1 class="text-lg md:text-xl font-medium accent-text mb-3">Hi, my name is</h1>
+                <h2 class="text-4xl md:text-7xl font-bold text-white mb-4">Shashank Agrawal.</h2>
+                <h3 class="text-3xl md:text-6xl font-bold text-gray-500 mb-8">I build solutions for the web.</h3>
+                <p class="max-w-xl text-lg text-gray-400 mb-10">
+                    A Full Stack Developer crafting high-performance, user-centric web applications. I turn complex problems into elegant, scalable solutions.
+                </p>
+                <div class="flex items-center space-x-4">
+                    <a href="#projects" class="btn btn-primary text-black font-semibold py-3 px-8 rounded-lg">View My Work</a>
+                    <!-- UPDATED: Resume Link -->
+                    <a href="https://drive.google.com/file/d/1BBOvX4BWjY8_K49HMCgOirB_6wLZKPOh/view" target="_blank" class="btn btn-secondary border text-gray-300 font-semibold py-3 px-8 rounded-lg">Resume</a>
+                </div>
+                <div class="mt-16 flex space-x-6">
+                     <a href="https://www.linkedin.com/in/agshashank" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="text-gray-400 hover:text-white transition transform hover:scale-110"><i data-feather="linkedin" class="w-7 h-7"></i></a>
+                     <a href="https://github.com/shashank090704" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="text-gray-400 hover:text-white transition transform hover:scale-110"><i data-feather="github" class="w-7 h-7"></i></a>
+                     <a href="https://www.codechef.com/users/calm_woven_11" target="_blank" rel="noopener noreferrer" aria-label="CodeChef" class="text-gray-400 hover:text-white transition transform hover:scale-110"><i data-feather="code" class="w-7 h-7"></i></a>
+                     <a href="https://leetcode.com/u/agrawalshashank51/" target="_blank" rel="noopener noreferrer" aria-label="LeetCode" class="text-gray-400 hover:text-white transition transform hover:scale-110 font-mono text-lg font-bold">LeetCode</a>
+                </div>
+            </div>
+        </section>
+        <!-- About Section -->
+        <section id="about" class="py-24 fade-in-up">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-12 text-center">About Me</h2>
+            <div class="grid md:grid-cols-5 gap-12 items-center">
+                <div class="md:col-span-3">
+                    <p class="mb-4 text-lg text-gray-400">
+                        Hello! I'm Shashank, a developer based in India. My journey into web development began with a deep curiosity for how the internet works, which has evolved into a passion for building elegant and efficient digital experiences.
+                    </p>
+                    <p class="mb-4 text-lg text-gray-400">
+                        Currently pursuing my B.Tech at the <span class="text-white font-semibold">Indian Institute of Information Technology, Bhopal</span>, I thrive on solving complex problems with a strong foundation in Data Structures, Algorithms, and Object-Oriented Programming.
+                    </p>
+                    <p class="text-lg text-gray-400">
+                        Outside of coding, I'm an avid competitive programmer, an open-source contributor, and a leader in my college's tech club, AXIOS, where I enjoy mentoring others and organizing events.
+                    </p>
+                </div>
+                <div class="md:col-span-2 flex justify-center">
+                    <div class="w-72 h-72 rounded-lg overflow-hidden border-2 border-emerald-500/30 p-2 relative group">
+                        <!-- UPDATED: Image placeholder -->
+                        <img src="./image.png" alt="Shashank Agrawal" class="w-full h-full object-cover rounded-md transform group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Education Section -->
+        <section id="education" class="py-24 fade-in-up">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-16 text-center">Education</h2>
+            <div class="max-w-3xl mx-auto timeline-container">
+                <div class="timeline-bar"><div class="timeline-bar-progress"></div></div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-connector"></div>
+                    <div class="card-container">
+                        <div class="glass-card rounded-lg">
+                            <div class="glass-card-content p-6">
+                                <h3 class="text-xl font-bold text-white">Indian Institute of Information Technology, Bhopal</h3>
+                                <p class="accent-text font-semibold mb-2">Bachelor of Technology in Information Technology</p>
+                                <p class="text-sm text-gray-500 mb-4">August 2023 - June 2027</p>
+                                <ul class="list-disc list-inside text-gray-400 space-y-2">
+                                    <li>Relevant Coursework: Data Structure and Algorithms, Object-Oriented Programming</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Experience Section -->
+        <section id="experience" class="py-24 fade-in-up">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-16 text-center">Work Experience</h2>
+            <div class="max-w-3xl mx-auto timeline-container">
+                <div class="timeline-bar"><div class="timeline-bar-progress"></div></div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-connector"></div>
+                    <div class="card-container">
+                        <div class="glass-card rounded-lg">
+                            <div class="glass-card-content p-6">
+                                <h3 class="text-xl font-bold text-white">Full Stack Developer Intern</h3>
+                                <p class="accent-text font-semibold mb-2">HELP THE BLIND Foundation (Govt. of India)</p>
+                                <p class="text-sm text-gray-500 mb-4">March 2025 - May 2025</p>
+                                <ul class="list-disc list-inside text-gray-400 space-y-2">
+                                    <li>Developed and launched a MERN stack platform to connect over 100 disabled students with scribes, improving platform responsiveness by 40%.</li>
+                                    <li>Engineered a real-time video calling feature using WebRTC and PeerJS, achieving 95% uptime and securing it with JWT authentication.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-connector"></div>
+                    <div class="card-container">
+                        <div class="glass-card rounded-lg">
+                            <div class="glass-card-content p-6">
+                                <h3 class="text-xl font-bold text-white">React JS Developer Intern</h3>
+                                <p class="accent-text font-semibold mb-2">Zorway Technology</p>
+                                <p class="text-sm text-gray-500 mb-4">July 2024 - August 2024</p>
+                                <ul class="list-disc list-inside text-gray-400 space-y-2">
+                                    <li>Constructed secure login/signup flows using React.js and Firebase, and integrated Lichess/Razorpay APIs, increasing user engagement by 20%.</li>
+                                    <li>Optimized backend response time by 30% through performance tuning and debugged over 10 critical API integration issues.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Leadership Section -->
+        <section id="leadership" class="py-24 fade-in-up">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-16 text-center">Activities & Leadership</h2>
+            <div class="max-w-3xl mx-auto timeline-container">
+                <div class="timeline-bar"><div class="timeline-bar-progress"></div></div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-connector"></div>
+                    <div class="card-container">
+                        <div class="glass-card rounded-lg">
+                            <div class="glass-card-content p-6">
+                                <h3 class="text-xl font-bold text-white">Assistant Web Developer</h3>
+                                <p class="accent-text font-semibold mb-2">AXIOS - Technical Club of IIIT Bhopal</p>
+                                <ul class="list-disc list-inside text-gray-400 space-y-2 mt-4">
+                                    <li>Selected from a competitive pool of over 300 students to lead web development initiatives for the college's premier technical club.</li>
+                                    <li>Conducted a hands-on web development workshop for 100+ students.</li>
+                                    <li>Spearheaded the organization of a college-wide hackathon that attracted over 100 participants.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Projects Section -->
+        <section id="projects" class="py-24 fade-in-up">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-12 text-center">My Projects</h2>
+            <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
+                <!-- Project 1: Vrishti -->
+                <div class="card-container">
+                    <div class="glass-card rounded-lg group">
+                        <div class="glass-card-content flex flex-col">
+                            <div class="overflow-hidden rounded-t-lg">
+                                <img src="./Screenshot 2025-08-15 164955.png" alt="Vrishti Project Thumbnail" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            </div>
+                            <div class="p-6 flex flex-col flex-grow">
+                                <h3 class="text-2xl font-bold text-white mb-2 group-hover:accent-text transition-colors">Vrishti - B2B Farming Platform</h3>
+                                <p class="text-gray-400 mb-4 flex-grow">A semester project to digitally connect farmers and buyers. Integrated Razorpay for payments, TalkJS for chat, and OpenAI for farming suggestions.</p>
+                                <div class="flex flex-wrap gap-2 text-sm mt-auto">
+                                    <span class="bg-gray-800 text-gray-400 px-3 py-1 rounded-full">Next.js</span>
+                                    <span class="bg-gray-800 text-gray-400 px-3 py-1 rounded-full">MongoDB</span>
+                                    <span class="bg-gray-800 text-gray-400 px-3 py-1 rounded-full">Firebase</span>
+                                    <span class="bg-gray-800 text-gray-400 px-3 py-1 rounded-full">TalkJS</span>
+                                </div>
+                                <div class="mt-4 flex justify-end space-x-4">
+                                    <!-- UPDATED: Project 1 GitHub Link -->
+                                    <a href="https://github.com/shashank090704/VEDAVIK" target="_blank" rel="noopener noreferrer" aria-label="GitHub for Vrishti" class="text-gray-400 hover:text-white"><i data-feather="github"></i></a>
+                                    <!-- UPDATED: Project 1 Live Demo Link -->
+                                    <a href="https://vedavik.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Live Demo of Vrishti" class="text-gray-400 hover:text-white"><i data-feather="external-link"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Project 2: Anonymous Messaging -->
+                <div class="card-container">
+                    <div class="glass-card rounded-lg group">
+                        <div class="glass-card-content flex flex-col">
+                            <div class="overflow-hidden rounded-t-lg">
+                                <img src="./Screenshot (1640).png" alt="Anonymous Messaging Platform Thumbnail" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            </div>
+                            <div class="p-6 flex flex-col flex-grow">
+                                <h3 class="text-2xl font-bold text-white mb-2 group-hover:accent-text transition-colors">Anonymous Messaging Platform</h3>
+                                <p class="text-gray-400 mb-4 flex-grow">A secure anonymous chat app with JWT authentication and basic encryption. Pilot tested with 200+ students to evaluate usability and performance.</p>
+                                <div class="flex flex-wrap gap-2 text-sm mt-auto">
+                                    <span class="bg-gray-800 text-gray-400 px-3 py-1 rounded-full">Next.js</span>
+                                    <span class="bg-gray-800 text-gray-400 px-3 py-1 rounded-full">MongoDB</span>
+                                    <span class="bg-gray-800 text-gray-400 px-3 py-1 rounded-full">Firebase</span>
+                                    <span class="bg-gray-800 text-gray-400 px-3 py-1 rounded-full">JWT</span>
+                                </div>
+                                <div class="mt-4 flex justify-end space-x-4">
+                                    <!-- UPDATED: Project 2 GitHub Link -->
+                                    <a href="https://github.com/shashank090704/message-1" target="_blank" rel="noopener noreferrer" aria-label="GitHub for AnonChat" class="text-gray-400 hover:text-white"><i data-feather="github"></i></a>
+                                    <!-- UPDATED: Project 2 Live Demo Link -->
+                                    <a href="https://message-1-alpha.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Live Demo of AnonChat" class="text-gray-400 hover:text-white"><i data-feather="external-link"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Skills Section -->
+        <section id="skills" class="py-24 fade-in-up">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-12 text-center">Skills & Achievements</h2>
+            <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-2xl font-semibold text-white mb-6 text-center md:text-left">Technical Skills</h3>
+                    <div class="grid grid-cols-4 sm:grid-cols-6 gap-4">
+                        <div class="skill-card"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" class="w-12 h-12"/><span>JavaScript</span></div>
+                        <div class="skill-card"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" class="w-12 h-12"/><span>React</span></div>
+                        <div class="skill-card"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original-wordmark.svg" class="w-12 h-12" style="filter: invert(1);"/><span>Next.js</span></div>
+                        <div class="skill-card"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" class="w-12 h-12"/><span>Node.js</span></div>
+                        <div class="skill-card"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg" class="w-12 h-12" style="filter: invert(1);"/><span>Express</span></div>
+                        <div class="skill-card"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" class="w-12 h-12"/><span>MongoDB</span></div>
+                        <div class="skill-card"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg" class="w-12 h-12"/><span>Firebase</span></div>
+                        <!-- UPDATED: Tailwind CSS icon -->
+                        <div class="skill-card"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" class="w-12 h-12"/><span>Tailwind</span></div>
+                        <div class="skill-card"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" class="w-12 h-12"/><span>Java</span></div>
+                        <div class="skill-card"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" class="w-12 h-12"/><span>C++</span></div>
+                        <div class="skill-card"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" class="w-12 h-12"/><span>Git</span></div>
+                        <div class="skill-card"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" class="w-12 h-12" style="filter: invert(1);"/><span>AWS</span></div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold text-white mb-6 text-center md:text-left">Achievements</h3>
+                    <ul class="space-y-4 text-gray-400">
+                         <li class="flex items-start"><i data-feather="award" class="w-5 h-5 accent-text mr-3 mt-1 shrink-0"></i>Achieved <span class="font-bold text-white mx-1">Global Rank 659</span> in CodeChef Starters 183.</li>
+                         <li class="flex items-start"><i data-feather="code" class="w-5 h-5 accent-text mr-3 mt-1 shrink-0"></i>Solved over <span class="font-bold text-white mx-1">500 DSA problems</span> on platforms like LeetCode & CodeChef.</li>
+                         <!-- <li class="flex items-start"><i data-feather="git-pull-request" class="w-5 h-5 accent-text mr-3 mt-1 shrink-0"></i>Active contributor to open-source projects during the <span class="font-bold text-white mx-1">GirlScript Summer of Code 2024</span>.</li> -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <!-- Learning Section -->
+        <section id="learning" class="py-24 fade-in-up">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 text-center">Current Learning</h2>
+            <p class="max-w-2xl mx-auto text-gray-400 mb-12 text-center">
+                I believe in lifelong learning. Here's a glimpse into the concepts I'm currently exploring to sharpen my skills.
+            </p>
+            <div class="max-w-3xl mx-auto grid md:grid-cols-2 gap-8">
+                <div class="card-container">
+                    <div class="glass-card rounded-lg">
+                        <div class="glass-card-content p-6">
+                            <i data-feather="box" class="w-8 h-8 accent-text mb-4"></i>
+                            <h3 class="text-xl font-bold text-white mb-2">System Design</h3>
+                            <p class="text-gray-400">Deepening my understanding of designing scalable, resilient, and high-performance distributed systems.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div class="glass-card rounded-lg">
+                        <div class="glass-card-content p-6">
+                            <i data-feather="shield" class="w-8 h-8 accent-text mb-4"></i>
+                            <h3 class="text-xl font-bold text-white mb-2">Web Security</h3>
+                            <p class="text-gray-400">Studying advanced web security principles and best practices to build more robust and secure applications.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Contact Section -->
+        <section id="contact" class="py-24 text-center fade-in-up">
+              <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Get In Touch</h2>
+              <p class="max-w-xl mx-auto text-gray-400 mb-8">
+                  I'm currently seeking new opportunities and collaborations. My inbox is always open, so whether you have a question or just want to say hi, I'll get back to you!
+              </p>
+              <a href="mailto:agrawalshashank51@gmail.com" class="inline-block btn btn-primary text-black font-semibold py-3 px-10 rounded-lg text-lg">
+                  Say Hello
+              </a>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer class="text-center py-8 border-t border-gray-900">
+        <div class="flex justify-center space-x-6 mb-4">
+            <!-- UPDATED: Footer Links -->
+            <a href="https://www.linkedin.com/in/agshashank" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="text-gray-500 hover:text-white transition"><i data-feather="linkedin" class="w-6 h-6"></i></a>
+            <a href="https://github.com/shashank090704" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="text-gray-500 hover:text-white transition"><i data-feather="github" class="w-6 h-6"></i></a>
+        </div>
+        <p class="text-gray-500 text-sm">Designed & Built by Shashank Agrawal</p>
+    </footer>
+    <script>
+        // --- Feather Icons ---
+        feather.replace();
+        // --- Mobile Menu Toggle ---
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+        
+        mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+        mobileNavLinks.forEach(link => link.addEventListener('click', () => mobileMenu.classList.add('hidden')));
+        // --- Sticky Header on Scroll ---
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            header.style.background = window.scrollY > 50 ? 'rgba(10, 10, 10, 0.8)' : 'transparent';
+            header.style.backdropFilter = window.scrollY > 50 ? 'blur(10px)' : 'none';
+        });
+        // --- Active Nav Link on Scroll ---
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const navObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    navLinks.forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+                    });
+                }
+            });
+        }, { root: null, rootMargin: '0px', threshold: 0.4 });
+        sections.forEach(section => navObserver.observe(section));
+        
+        // --- Fade-in animation on scroll ---
+        const faders = document.querySelectorAll('.fade-in-up');
+        const faderObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        faders.forEach(fader => faderObserver.observe(fader));
+        
+        // --- Set initial state for the hero section ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('#home .fade-in-up').classList.add('visible');
+        });
+        // --- Card Tilt Effect ---
+        const cards = document.querySelectorAll('.card-container');
+        cards.forEach(card => {
+            const glassCard = card.querySelector('.glass-card');
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const { width, height } = rect;
+                const rotateX = (y / height - 0.5) * -15; // Max rotation 7.5deg
+                const rotateY = (x / width - 0.5) * 15;  // Max rotation 7.5deg
+                glassCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                glassCard.style.transform = 'rotateX(0) rotateY(0)';
+            });
+        });
+        // --- Three.js Animation ---
+        let scene, camera, renderer, particles;
+        let animationFrameId;
+        const canvas = document.getElementById('hero-canvas');
+        const mouse = new THREE.Vector2();
+        function initThree() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            const particleCount = 5000;
+            const positions = new Float32Array(particleCount * 3);
+            const geometry = new THREE.BufferGeometry();
+            for (let i = 0; i < particleCount; i++) {
+                const i3 = i * 3;
+                const phi = Math.acos(-1 + (2 * i) / particleCount);
+                const theta = Math.sqrt(particleCount * Math.PI) * phi;
+                positions[i3] = 2.5 * Math.cos(theta) * Math.sin(phi);
+                positions[i3 + 1] = 2.5 * Math.sin(theta) * Math.sin(phi);
+                positions[i3 + 2] = 2.5 * Math.cos(phi);
+            }
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const material = new THREE.PointsMaterial({ color: 0x10B981, size: 0.015 });
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+            camera.position.z = 5;
+        }
+        function animate() {
+            animationFrameId = requestAnimationFrame(animate);
+            particles.rotation.y += (mouse.x * 0.2 - particles.rotation.y) * 0.02;
+            particles.rotation.x += (mouse.y * 0.2 - particles.rotation.x) * 0.02;
+            renderer.render(scene, camera);
+        }
+        
+        function stopAnimate() { cancelAnimationFrame(animationFrameId); }
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+        window.addEventListener('resize', onWindowResize, false);
+        window.addEventListener('mousemove', onMouseMove, false);
+        initThree();
+        
+        const heroSection = document.getElementById('home');
+        const animationObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => entry.isIntersecting ? animate() : stopAnimate());
+        }, { threshold: 0 });
+        animationObserver.observe(heroSection);
+    </script>
+</body>
+</html>
